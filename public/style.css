@@ -17,14 +17,20 @@ main { max-width: 720px; margin: 0 auto; padding: 20px; }
 .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
 .big-btn {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px; padding: 36px 16px; border-radius: 16px; border: none; cursor: pointer;
-  font-size: 18px; font-weight: 600; text-decoration: none; color: white;
+  gap: 10px; aspect-ratio: 1 / 1; padding: 16px; border-radius: 16px; border: none; cursor: pointer;
+  font-size: 18px; font-weight: 600; text-decoration: none; color: white; text-align: center;
 }
 .big-btn.intake { background: linear-gradient(135deg, #1e9e62, #15784a); }
 .big-btn.outtake { background: linear-gradient(135deg, #c0392b, #962b20); }
+.big-btn.catalog { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+.big-btn.settings { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
 .big-btn .icon { font-size: 38px; }
-.links { display: flex; gap: 16px; margin-top: 24px; justify-content: center; }
-.links a { color: #9fc5ff; text-decoration: none; font-size: 15px; }
+
+@media (max-width: 480px) {
+  .btn-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .big-btn { font-size: 15px; padding: 12px; }
+  .big-btn .icon { font-size: 30px; }
+}
 
 form { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
 label { font-size: 14px; color: #b9cbe2; display: flex; flex-direction: column; gap: 6px; }
