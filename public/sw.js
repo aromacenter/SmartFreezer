@@ -1,4 +1,4 @@
-const CACHE = 'fagyaszto-shell-v2';
+const CACHE = 'fagyaszto-shell-v3';
 const SHELL = [
   '/', '/index.html', '/login.html', '/intake.html', '/outtake.html',
   '/catalog.html', '/settings.html', '/style.css', '/manifest.json',

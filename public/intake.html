@@ -22,20 +22,20 @@
   <form id="intakeForm" enctype="multipart/form-data">
     <div>
       <span class="field-label">Termék fotó (a termékről)</span>
-      <div class="photo-input" id="pickProduct">
+      <div class="photo-input photo-input-wrap" id="pickProduct">
         <span>Érintsd meg a fotó készítéséhez / kiválasztásához</span>
         <img id="previewProduct" style="display:none" />
+        <input type="file" name="photo_product" accept="image/*" capture="environment" id="photoProduct" class="photo-input-overlay" required />
       </div>
-      <input type="file" name="photo_product" accept="image/*" capture="environment" id="photoProduct" class="visually-hidden" required />
     </div>
 
     <div>
       <span class="field-label">Termékcímke fotó (a csomagolás címkéjéről)</span>
-      <div class="photo-input" id="pickLabel">
+      <div class="photo-input photo-input-wrap" id="pickLabel">
         <span>Érintsd meg a fotó készítéséhez / kiválasztásához</span>
         <img id="previewLabel" style="display:none" />
+        <input type="file" name="photo_label" accept="image/*" capture="environment" id="photoLabel" class="photo-input-overlay" required />
       </div>
-      <input type="file" name="photo_label" accept="image/*" capture="environment" id="photoLabel" class="visually-hidden" required />
     </div>
 
     <label>Termék neve
@@ -56,10 +56,8 @@
 </main>
 <script>
 function wirePhotoInput(pickId, inputId, previewId) {
-  const pick = document.getElementById(pickId);
   const input = document.getElementById(inputId);
   const preview = document.getElementById(previewId);
-  pick.addEventListener('click', () => input.click());
   input.addEventListener('change', () => {
     const file = input.files[0];
     if (!file) return;
