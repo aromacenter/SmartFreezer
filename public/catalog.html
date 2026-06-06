@@ -19,6 +19,12 @@
   <a href="/">Vissza</a>
 </header>
 <main>
+  <div class="size-control" id="sizeControl">
+    <button data-scale="0.8">Kicsi</button>
+    <button data-scale="1">Közepes</button>
+    <button data-scale="1.5">Nagy</button>
+    <button data-scale="2">Extra nagy</button>
+  </div>
   <input class="search" type="search" id="search" placeholder="Keresés név alapján…" />
   <div class="product-grid" id="grid"></div>
 </main>
@@ -94,6 +100,18 @@ document.getElementById('search').addEventListener('input', (e) => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => load(e.target.value.trim()), 250);
 });
+
+function applyScale(scale) {
+  document.documentElement.style.setProperty('--card-scale', scale);
+  localStorage.setItem('cardScale', scale);
+  document.querySelectorAll('#sizeControl button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.scale === String(scale));
+  });
+}
+document.querySelectorAll('#sizeControl button').forEach(btn => {
+  btn.addEventListener('click', () => applyScale(btn.dataset.scale));
+});
+applyScale(localStorage.getItem('cardScale') || '1');
 
 fetch('/api/session').then(r => r.json()).then(d => { if (!d.loggedIn) location.href = '/login.html'; else load(); });
 </script>
