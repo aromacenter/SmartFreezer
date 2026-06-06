@@ -20,21 +20,23 @@
 </header>
 <main>
   <form id="intakeForm" enctype="multipart/form-data">
-    <label>Termék fotó (a termékről)
+    <div>
+      <span class="field-label">Termék fotó (a termékről)</span>
       <div class="photo-input" id="pickProduct">
         <span>Érintsd meg a fotó készítéséhez / kiválasztásához</span>
         <img id="previewProduct" style="display:none" />
       </div>
-      <input type="file" name="photo_product" accept="image/*" capture="environment" id="photoProduct" hidden required />
-    </label>
+      <input type="file" name="photo_product" accept="image/*" capture="environment" id="photoProduct" class="visually-hidden" required />
+    </div>
 
-    <label>Termékcímke fotó (a csomagolás címkéjéről)
+    <div>
+      <span class="field-label">Termékcímke fotó (a csomagolás címkéjéről)</span>
       <div class="photo-input" id="pickLabel">
         <span>Érintsd meg a fotó készítéséhez / kiválasztásához</span>
         <img id="previewLabel" style="display:none" />
       </div>
-      <input type="file" name="photo_label" accept="image/*" capture="environment" id="photoLabel" hidden required />
-    </label>
+      <input type="file" name="photo_label" accept="image/*" capture="environment" id="photoLabel" class="visually-hidden" required />
+    </div>
 
     <label>Termék neve
       <input type="text" name="name" required />
