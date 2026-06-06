@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kivételezés – Fagyasztó készlet</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<header>
+  <h1>📤 Kivételezés</h1>
+  <a href="/">Vissza</a>
+</header>
+<main>
+  <input class="search" type="search" id="search" placeholder="Keresés név alapján…" />
+  <div class="product-grid" id="grid"></div>
+</main>
+
+<div class="modal-backdrop" id="modalBackdrop" style="display:none">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+    <p id="modalMeta" style="color:#9fb2cc;font-size:14px;"></p>
+    <label>Kivételezendő darabszám
+      <input type="number" id="modalQuantity" min="1" value="1" />
+    </label>
+    <div id="modalMsg"></div>
+    <div class="row">
+      <button class="cancel" id="modalCancel">Mégse</button>
+      <button class="confirm" id="modalConfirm">Kivételezés</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let products = [];
+let selected = null;
+
+async function load(q = '') {
+  const res = await fetch('/api/products' + (q ? `?q=${encodeURIComponent(q)}` : ''));
+  products = await res.json();
+  render();
+}
+
+function render() {
+  const grid = document.getElementById('grid');
+  if (!products.length) {
+    grid.innerHTML = '<p style="color:#9fb2cc">Nincs találat a készletben.</p>';
+    return;
+  }
+  grid.innerHTML = products.map(p => `
+    <div class="card" data-id="${p.id}">
+      <img src="${p.photo_product ? '/uploads/' + p.photo_product : ''}" alt="${p.name}" onerror="this.style.opacity=0" />
+      <div class="info">
+        <div class="name">${p.name}</div>
+        <div class="meta">${p.quantity} db · ${p.location || '—'}</div>
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => openModal(parseInt(card.dataset.id, 10)));
+  });
+}
+
+function openModal(id) {
+  selected = products.find(p => p.id === id);
+  if (!selected) return;
+  document.getElementById('modalTitle').textContent = selected.name;
+  document.getElementById('modalMeta').textContent = `Készleten: ${selected.quantity} db · ${selected.location || '—'}`;
+  const qInput = document.getElementById('modalQuantity');
+  qInput.value = 1;
+  qInput.max = selected.quantity;
+  document.getElementById('modalMsg').textContent = '';
+  document.getElementById('modalBackdrop').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('modalBackdrop').style.display = 'none';
+  selected = null;
+}
+
+document.getElementById('modalCancel').addEventListener('click', closeModal);
+document.getElementById('modalBackdrop').addEventListener('click', (e) => {
+  if (e.target.id === 'modalBackdrop') closeModal();
+});
+
+document.getElementById('modalConfirm').addEventListener('click', async () => {
+  if (!selected) return;
+  const quantity = parseInt(document.getElementById('modalQuantity').value, 10);
+  const msg = document.getElementById('modalMsg');
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    msg.innerHTML = '<div class="msg error">Adj meg érvényes darabszámot</div>';
+    return;
+  }
+  const res = await fetch('/api/outtake', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: selected.id, quantity }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    closeModal();
+    load(document.getElementById('search').value.trim());
+  } else {
+    msg.innerHTML = `<div class="msg error">${data.error || 'Hiba történt'}</div>`;
+  }
+});
+
+let searchTimer;
+document.getElementById('search').addEventListener('input', (e) => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => load(e.target.value.trim()), 250);
+});
+
+fetch('/api/session').then(r => r.json()).then(d => { if (!d.loggedIn) location.href = '/login.html'; else load(); });
+</script>
+</body>
+</html>

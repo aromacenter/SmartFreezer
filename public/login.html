@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bejelentkezés – Fagyasztó készlet</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<main style="max-width:360px;">
+  <h1>❄️ Fagyasztó készlet</h1>
+  <form id="loginForm">
+    <label>Jelszó
+      <input type="password" name="password" required autofocus />
+    </label>
+    <button class="submit" type="submit">Belépés</button>
+    <div id="msg"></div>
+  </form>
+</main>
+<script>
+const form = document.getElementById('loginForm');
+const msg = document.getElementById('msg');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  msg.textContent = '';
+  const password = new FormData(form).get('password');
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+  if (res.ok) {
+    location.href = '/';
+  } else {
+    const data = await res.json().catch(() => ({}));
+    msg.innerHTML = `<div class="msg error">${data.error || 'Hibás jelszó'}</div>`;
+  }
+});
+</script>
+</body>
+</html>

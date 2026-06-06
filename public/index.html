@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fagyasztó készlet</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<header>
+  <h1>❄️ Fagyasztó készlet</h1>
+  <button id="logoutBtn">Kilépés</button>
+</header>
+<main>
+  <div class="btn-grid">
+    <a class="big-btn intake" href="/intake.html"><span class="icon">📥</span>Bevételezés</a>
+    <a class="big-btn outtake" href="/outtake.html"><span class="icon">📤</span>Kivételezés</a>
+  </div>
+  <div class="links">
+    <a href="/catalog.html">📚 Katalógus</a>
+    <a href="/settings.html">⚙️ Beállítások</a>
+  </div>
+</main>
+<script>
+fetch('/api/session').then(r => r.json()).then(d => { if (!d.loggedIn) location.href = '/login.html'; });
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' });
+  location.href = '/login.html';
+});
+</script>
+</body>
+</html>

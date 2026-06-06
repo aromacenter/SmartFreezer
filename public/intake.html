@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bevételezés – Fagyasztó készlet</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<header>
+  <h1>📥 Bevételezés</h1>
+  <a href="/">Vissza</a>
+</header>
+<main>
+  <form id="intakeForm" enctype="multipart/form-data">
+    <label>Termék fotó (a termékről)
+      <div class="photo-input" id="pickProduct">
+        <span>Érintsd meg a fotó készítéséhez / kiválasztásához</span>
+        <img id="previewProduct" style="display:none" />
+      </div>
+      <input type="file" name="photo_product" accept="image/*" capture="environment" id="photoProduct" hidden required />
+    </label>
+
+    <label>Termékcímke fotó (a csomagolás címkéjéről)
+      <div class="photo-input" id="pickLabel">
+        <span>Érintsd meg a fotó készítéséhez / kiválasztásához</span>
+        <img id="previewLabel" style="display:none" />
+      </div>
+      <input type="file" name="photo_label" accept="image/*" capture="environment" id="photoLabel" hidden required />
+    </label>
+
+    <label>Termék neve
+      <input type="text" name="name" required />
+    </label>
+
+    <label>Darabszám
+      <input type="number" name="quantity" min="1" value="1" required />
+    </label>
+
+    <label>Tárhely a fagyasztóban
+      <select name="location" id="locationSelect" required></select>
+    </label>
+
+    <button class="submit" type="submit">Bevételezés rögzítése</button>
+    <div id="msg"></div>
+  </form>
+</main>
+<script>
+function wirePhotoInput(pickId, inputId, previewId) {
+  const pick = document.getElementById(pickId);
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(previewId);
+  pick.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file) return;
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+  });
+}
+wirePhotoInput('pickProduct', 'photoProduct', 'previewProduct');
+wirePhotoInput('pickLabel', 'photoLabel', 'previewLabel');
+
+async function loadLocations() {
+  const res = await fetch('/api/locations');
+  const locations = await res.json();
+  const select = document.getElementById('locationSelect');
+  select.innerHTML = locations.map(l => `<option value="${l.name}">${l.name}</option>`).join('')
+    || '<option value="">Nincs tárhely beállítva – add hozzá a Beállításokban</option>';
+}
+loadLocations();
+
+const form = document.getElementById('intakeForm');
+const msg = document.getElementById('msg');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  msg.textContent = '';
+  const submitBtn = form.querySelector('.submit');
+  submitBtn.disabled = true;
+  try {
+    const res = await fetch('/api/intake', { method: 'POST', body: new FormData(form) });
+    const data = await res.json();
+    if (res.ok) {
+      msg.innerHTML = '<div class="msg ok">Sikeres bevételezés!</div>';
+      form.reset();
+      document.getElementById('previewProduct').style.display = 'none';
+      document.getElementById('previewLabel').style.display = 'none';
+    } else {
+      msg.innerHTML = `<div class="msg error">${data.error || 'Hiba történt'}</div>`;
+    }
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+
+fetch('/api/session').then(r => r.json()).then(d => { if (!d.loggedIn) location.href = '/login.html'; });
+</script>
+</body>
+</html>

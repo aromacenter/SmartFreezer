@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Beállítások – Fagyasztó készlet</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<header>
+  <h1>⚙️ Beállítások</h1>
+  <a href="/">Vissza</a>
+</header>
+<main>
+  <h3>Választható tárhelyek a fagyasztóban</h3>
+  <form id="addForm">
+    <label>Új tárhely neve
+      <input type="text" name="name" placeholder="pl. Felső fiók" required />
+    </label>
+    <button class="submit" type="submit">Hozzáadás</button>
+    <div id="msg"></div>
+  </form>
+  <div class="locations-list" id="list"></div>
+</main>
+<script>
+async function load() {
+  const res = await fetch('/api/locations');
+  const locations = await res.json();
+  document.getElementById('list').innerHTML = locations.map(l => `
+    <div class="row">
+      <span>${l.name}</span>
+      <button data-id="${l.id}">Törlés</button>
+    </div>
+  `).join('') || '<p style="color:#9fb2cc">Még nincs tárhely felvéve.</p>';
+  document.querySelectorAll('.locations-list button').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await fetch('/api/locations/' + btn.dataset.id, { method: 'DELETE' });
+      load();
+    });
+  });
+}
+
+const form = document.getElementById('addForm');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('msg');
+  msg.textContent = '';
+  const name = new FormData(form).get('name');
+  const res = await fetch('/api/locations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    form.reset();
+    load();
+  } else {
+    msg.innerHTML = `<div class="msg error">${data.error || 'Hiba történt'}</div>`;
+  }
+});
+
+fetch('/api/session').then(r => r.json()).then(d => { if (!d.loggedIn) location.href = '/login.html'; else load(); });
+</script>
+</body>
+</html>
